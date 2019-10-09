@@ -10,4 +10,6 @@ Designed as top down broom racing. avoid obstacles and beat your opponent to the
  - 
 
 ## References
- - 
+ - [Obstacle sprites](https://opengameart.org/content/496-pixel-art-icons-for-medievalfantasy-rpg)
+ - [Broom sprite (By me!)](https://reakain.itch.io/)
+ - [Cloud BG](https://www.pexels.com/photo/air-atmosphere-blue-blue-sky-314726/)

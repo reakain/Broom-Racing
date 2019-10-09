@@ -351,7 +351,9 @@ MonoBehaviour:
     type: 3}
   obstaclePrefab: {fileID: 2022985067631540748, guid: ab513a8599a133c4ea8e1b5125bf0b8e,
     type: 3}
-  _myOtherSprites: []
+  obstacleSprites: []
+  obstacleSpriteTexture: {fileID: 2800000, guid: d308134e7172a754fb951b32c235eddd,
+    type: 3}
 --- !u!4 &940478547
 Transform:
   m_ObjectHideFlags: 0

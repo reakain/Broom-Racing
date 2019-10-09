@@ -10,15 +10,19 @@ namespace BroomRacing
         public Racer racerPrefab;
         public Obstacle obstaclePrefab;
 
-        public Sprite[] _myOtherSprites;
+        public Sprite[] obstacleSprites;
         private Image[] _images;
 
         private List<Obstacle> obstacles;
 
+        public Texture2D obstacleSpriteTexture;
+
         private void Awake()
         {
+            obstacleSprites = Resources.LoadAll<Sprite>(obstacleSpriteTexture.name);
             obstacles = new List<Obstacle>();
             GenerateObstacles();
+
         }
 
         /*
@@ -50,9 +54,9 @@ namespace BroomRacing
             int numObstacles = Random.Range(10, 30);
             for (int i = 0; i < numObstacles; i++)
             {
-                //int numSprite = Random.Range(0, _myOtherSprites.Length - 1);
+                int numSprite = Random.Range(0, obstacleSprites.Length - 1);
                 var obj = Instantiate(obstaclePrefab);
-                // obj.SetRandomObstacle(_myOtherSprites[numSprite], GeneratePosition());
+                obj.SetRandomObstacle(obstacleSprites[numSprite], GeneratePosition());
                 obstacles.Add(obj);
                 //
             }
