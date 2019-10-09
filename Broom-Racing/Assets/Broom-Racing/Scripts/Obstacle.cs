@@ -20,13 +20,17 @@ namespace BroomRacing
 
         public void SetRandomObstacle(Sprite newSprite, Vector3 position)
         {
+            // Set sprite gravity and mass
+            m_Rigidbody2D.mass = Random.Range(0.01f, 3.0f);
             m_Rigidbody2D.gravityScale = Random.Range(0.0f, 2.0f);
+
             /*for (int i = 0; i < m_Collider2D.pathCount; i++)
             {
                 m_Collider2D.SetPath(i, null);
             }*/
-            m_Collider2D.pathCount = newSprite.GetPhysicsShapeCount();
 
+            // Set sprite and collider
+            m_Collider2D.pathCount = newSprite.GetPhysicsShapeCount();
             List<Vector2> path = new List<Vector2>();
             for (int i = 0; i < m_Collider2D.pathCount; i++)
             {
@@ -35,6 +39,8 @@ namespace BroomRacing
                 m_Collider2D.SetPath(i, path.ToArray());
             }
             m_SpriteRenderer.sprite = newSprite;
+
+            // Set Sprite position
             this.gameObject.transform.position = position;
         }
 

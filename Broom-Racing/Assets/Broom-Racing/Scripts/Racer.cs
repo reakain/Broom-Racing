@@ -64,10 +64,13 @@ namespace BroomRacing
 
         void OnCollisionEnter2D(Collision2D other)
         {
-            if (other.gameObject.layer == m_Obstacles)
+            if (other.gameObject.layer == m_Obstacles.value)
             {
                 // Zero out the velocity
                 m_Rigidbody2D.velocity = Vector2.zero;
+
+                // Force position kickback
+                m_Rigidbody2D.AddForce((m_Rigidbody2D.transform.position - other.transform.position).normalized * -5000f);
 
                 //...tell the Animator about it...
                 //anim.SetTrigger("Hit");
