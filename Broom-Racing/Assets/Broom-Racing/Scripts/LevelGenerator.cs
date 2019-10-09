@@ -9,6 +9,7 @@ namespace BroomRacing
     {
         public Racer racerPrefab;
         public Obstacle obstaclePrefab;
+        public Transform waypointPrefab;
 
         public Sprite[] obstacleSprites;
         private Image[] _images;
@@ -17,11 +18,14 @@ namespace BroomRacing
 
         public Texture2D obstacleSpriteTexture;
 
+        public Transform[] waypointList;
+
         private void Awake()
         {
             obstacleSprites = Resources.LoadAll<Sprite>(obstacleSpriteTexture.name);
             obstacles = new List<Obstacle>();
-            GenerateObstacles();
+            GenerateLevelLayout();
+            RaceController.instance.SetRacePath(waypointList);
 
         }
 
@@ -45,7 +49,7 @@ namespace BroomRacing
 
         void GenerateLevelLayout()
         {
-            
+            GenerateLevelPath();
         }
 
         void GenerateObstacles()
@@ -65,9 +69,41 @@ namespace BroomRacing
         Vector3 GeneratePosition()
         {
             // Based on Level layout, generate an obstacle position and return it
-            return Vector3.zero;
+
+            return new Vector3(Random.Range(-10.0f,10.0f), Random.Range(-6.0f,6.0f));
         }
 
+        void GenerateLevelPath()
+        {
+            // Create a list of empty game objects as waypoints
+            int waypointNum = Random.Range(4, 20);
+            waypointList = new Transform[waypointNum];
+
+            waypointList[0] = Instantiate(waypointPrefab);
+            waypointList[0].position = new Vector3(Random.Range(100f,200f),Random.Range(100f,200f));
+
+            for (int i = 1; i < waypointNum; i++)
+            {
+
+                waypointList[i] = Instantiate(waypointPrefab,waypointList[i-1]);
+                waypointList[i].position = Vector3.MoveTowards(waypointList[i].position, Vector3.zero, Random.Range(7f,20f));
+                if( i%3 == 0)
+                {
+                    waypointList[i].position = Vector3.MoveTowards(waypointList[i].position, new Vector3(Random.Range(-300f, 300f), Random.Range(-50f, 50f)), Random.Range(7f, 20f));
+                }
+            }
+            System.Array.Reverse(waypointList);
+
+            //Generate2DLevelPath();
+        }
+
+        void Generate2DLevelPath()
+        {
+            foreach (var waypoint in waypointList)
+            {
+                Waypoint.instance.followWaypoints.Add(new Waypoint.FollowData(waypoint.position));
+            }
+        }
 
     }
 }

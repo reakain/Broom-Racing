@@ -13,6 +13,7 @@ namespace BroomRacing
         [SerializeField] private LayerMask m_Obstacles;
         [SerializeField] private float m_Speed = 5.0f;
         [SerializeField] private float analogDeadZone = 0.5f;
+        [SerializeField] private bool isPlayer = false;
 
         private Rigidbody2D m_Rigidbody2D;
         private Vector3 m_Velocity = Vector3.zero;
@@ -40,21 +41,55 @@ namespace BroomRacing
         // Update is called once per frame
         void Update()
         {
-            Move(GetPlayerMovement());
+            Vector2 targetPos;
+            if(isPlayer)
+            {
+                targetPos = GetPlayerMovement();
+            }
+            else
+            {
+                // AI goes here
+                targetPos = Vector2.zero;
+            }
+            Move(targetPos);
+            LockPosition();
         }
 
         public void Move(Vector2 movement)
         {
             // Set new velocity
             Vector3 targetVelocity = movement * m_Speed;
+            //transform.position = RaceController.instance.transform.position;
             // And then smoothing it out and applying it 
             m_Rigidbody2D.velocity = Vector3.SmoothDamp(m_Rigidbody2D.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
         }
 
+        public void LockPosition()
+        {
+            transform.up = RaceController.instance.transform.up;
+            if (isPlayer)
+            {
+                transform.localPosition = new Vector3(transform.localPosition.x, 0, 0);
+            }
+        }
+
+        public void SetStartPosition()
+        {
+            transform.up = RaceController.instance.transform.up;
+
+            transform.localPosition = new Vector3(transform.localPosition.x, 0, 0);
+        }
+
+        public Vector2 GetAIPoint()
+        {
+            return Vector2.zero;
+        }
+
         Vector2 GetPlayerMovement()
         {
-            float xtemp = Input.GetAxisRaw("Horizontal");
-            float ytemp = Input.GetAxisRaw("Vertical");
+            float xtemp = Input.GetAxis(InputContainer.instance.movementAxis);
+            float ytemp = Input.GetAxis(InputContainer.instance.raceAxis);
+
 
             xtemp = (Math.Abs(xtemp) > analogDeadZone) ? xtemp : 0.0f;
             ytemp = (Math.Abs(ytemp) > analogDeadZone) ? ytemp : 0.0f;

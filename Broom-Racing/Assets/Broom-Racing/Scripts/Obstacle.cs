@@ -21,8 +21,8 @@ namespace BroomRacing
         public void SetRandomObstacle(Sprite newSprite, Vector3 position)
         {
             // Set sprite gravity and mass
-            m_Rigidbody2D.mass = Random.Range(0.01f, 3.0f);
-            m_Rigidbody2D.gravityScale = Random.Range(0.0f, 2.0f);
+            //m_Rigidbody2D.mass = Random.Range(0.01f, 3.0f);
+            //m_Rigidbody2D.gravityScale = Random.Range(0.0f, 2.0f);
 
             /*for (int i = 0; i < m_Collider2D.pathCount; i++)
             {
