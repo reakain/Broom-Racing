@@ -70,7 +70,7 @@ namespace BroomRacing
                 m_Rigidbody2D.velocity = Vector2.zero;
 
                 // Force position kickback
-                m_Rigidbody2D.AddForce((m_Rigidbody2D.transform.position - c.transform.position).normalized * -5000f);
+                m_Rigidbody2D.AddForce((m_Rigidbody2D.transform.position - c.transform.position).normalized * -500f);
 
                 //...tell the Animator about it...
                 //anim.SetTrigger("Hit");
