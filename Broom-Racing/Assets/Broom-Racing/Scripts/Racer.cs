@@ -62,15 +62,15 @@ namespace BroomRacing
             return (new Vector2(xtemp, ytemp));
         }
 
-        void OnCollisionEnter2D(Collision2D other)
+        void OnCollisionEnter2D(Collision2D c)
         {
-            if (other.gameObject.layer == m_Obstacles.value)
+            if ((m_Obstacles.value & 1 << c.gameObject.layer) == 1 << c.gameObject.layer)
             {
                 // Zero out the velocity
                 m_Rigidbody2D.velocity = Vector2.zero;
 
                 // Force position kickback
-                m_Rigidbody2D.AddForce((m_Rigidbody2D.transform.position - other.transform.position).normalized * -5000f);
+                m_Rigidbody2D.AddForce((m_Rigidbody2D.transform.position - c.transform.position).normalized * -5000f);
 
                 //...tell the Animator about it...
                 //anim.SetTrigger("Hit");
