@@ -7,7 +7,9 @@ Unity build out for 2D racing mini-game with scoring, opponent racer AI, and pro
 Designed as top down broom racing. avoid obstacles and beat your opponent to the finish line!
 
 ## To-Do
- - 
+ - Need to fix knockback effect on obstacle hit
+ - Need to add opponent AI
+ - Clean up and flesh out the level generation
 
 ## References
  - [Obstacle sprites](https://opengameart.org/content/496-pixel-art-icons-for-medievalfantasy-rpg)
