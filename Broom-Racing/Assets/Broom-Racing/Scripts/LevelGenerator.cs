@@ -23,6 +23,7 @@ namespace BroomRacing
         public Texture2D backgroundSpriteTexture;
 
         public Transform[] waypointList;
+        public Vector2[] trackPath;
 
         private void Awake()
         {
@@ -112,7 +113,7 @@ namespace BroomRacing
             return new Vector3(xval + position.x, yval + position.y);
         }
 
-        void GenerateLevelPath()
+        void GenerateLevelPath2()
         {
             // Create a list of empty game objects as waypoints
             int waypointNum = Random.Range(4, 20);
@@ -143,6 +144,21 @@ namespace BroomRacing
             System.Array.Reverse(waypointList);
 
             
+        }
+
+        void GenerateLevelPath()
+        {
+            int waypointNum = Random.Range(4, 20);
+
+            trackPath = ProceduralComplexLoop.GeneratePoints(background.bounds.size.x * randomScale, background.bounds.size.y * randomScale, waypointNum);
+
+            waypointList = new Transform[trackPath.Length];
+            for(int i = 0; i < trackPath.Length; i ++)
+            {
+                waypointList[i] = Instantiate(waypointPrefab);
+                waypointList[i].position = new Vector3(trackPath[i].x, trackPath[i].y);
+                GenerateObstacles(waypointList[i].position);
+            }
         }
 
     }
