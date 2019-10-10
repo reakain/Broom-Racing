@@ -66,7 +66,7 @@ public static class ProceduralComplexLoop
             pushApart(dataSet);
         }
 
-        return dataSet;
+        return CatmullRomSpline.GetCatmullRomSpline(dataSet);
         /*
         for (float i = 0; i <= 1.0f;)
         {

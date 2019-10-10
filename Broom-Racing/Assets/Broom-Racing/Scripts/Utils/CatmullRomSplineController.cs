@@ -1,28 +1,48 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 //Interpolation between points with a Catmull-Rom spline
-public static class CatmullRomSpline
+public class CatmullRomSplineController : MonoBehaviour
 {
-    public static Vector2[] GetCatmullRomSpline(Vector2[] dataSet)
-    {
-        List<Vector2> newPoints = new List<Vector2>();
-        for (int i = 0; i < dataSet.Length; i++)
-        {
-            newPoints.AddRange(CalculatePoint(dataSet, i));
-        }
+    public static CatmullRomSplineController instance;
 
-        return newPoints.ToArray();
+    private void Awake()
+    {
+        instance = this;
+    }
+    //Has to be at least 4 points
+    public Transform[] controlPointsList;
+    //Are we making a line or a loop?
+    public bool isLooping = true;
+
+    //Display without having to press play
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.white;
+
+        //Draw the Catmull-Rom spline between the points
+        for (int i = 0; i < controlPointsList.Length; i++)
+        {
+            //Cant draw between the endpoints
+            //Neither do we need to draw from the second to the last endpoint
+            //...if we are not making a looping line
+            if ((i == 0 || i == controlPointsList.Length - 2 || i == controlPointsList.Length - 1) && !isLooping)
+            {
+                continue;
+            }
+
+            DisplayCatmullRomSpline(i);
+        }
     }
 
-    public static Vector2[] CalculatePoint(Vector2[] dataSet, int pos)
+    //Display a spline between 2 points derived with the Catmull-Rom spline algorithm
+    void DisplayCatmullRomSpline(int pos)
     {
         //The 4 points we need to form a spline between p1 and p2
-        Vector3 p0 = dataSet[ClampListPos(dataSet.Length, pos - 1)];
-        Vector3 p1 = dataSet[pos];
-        Vector3 p2 = dataSet[ClampListPos(dataSet.Length,pos + 1)];
-        Vector3 p3 = dataSet[ClampListPos(dataSet.Length,pos + 2)];
+        Vector3 p0 = controlPointsList[ClampListPos(pos - 1)].position;
+        Vector3 p1 = controlPointsList[pos].position;
+        Vector3 p2 = controlPointsList[ClampListPos(pos + 1)].position;
+        Vector3 p3 = controlPointsList[ClampListPos(pos + 2)].position;
 
         //The start position of the line
         Vector3 lastPos = p1;
@@ -33,8 +53,6 @@ public static class CatmullRomSpline
 
         //How many times should we loop?
         int loops = Mathf.FloorToInt(1f / resolution);
-        Vector2[] pathSeg = new Vector2[loops+1];
-        pathSeg[0] = new Vector2(p1.x,p1.y);
 
         for (int i = 1; i <= loops; i++)
         {
@@ -44,26 +62,27 @@ public static class CatmullRomSpline
             //Find the coordinate between the end points with a Catmull-Rom spline
             Vector3 newPos = GetCatmullRomPosition(t, p0, p1, p2, p3);
 
+            //Draw this line segment
+            Gizmos.DrawLine(lastPos, newPos);
+
             //Save this pos so we can draw the next line segment
             lastPos = newPos;
-            pathSeg[i] = new Vector2(newPos.x, newPos.y);
         }
-        return pathSeg;
     }
 
     //Clamp the list positions to allow looping
-    public static int ClampListPos(int listLength,int pos)
+    int ClampListPos(int pos)
     {
         if (pos < 0)
         {
-            pos = listLength - 1;
+            pos = controlPointsList.Length - 1;
         }
 
-        if (pos > listLength)
+        if (pos > controlPointsList.Length)
         {
             pos = 1;
         }
-        else if (pos > listLength - 1)
+        else if (pos > controlPointsList.Length - 1)
         {
             pos = 0;
         }
@@ -73,7 +92,7 @@ public static class CatmullRomSpline
 
     //Returns a position between 4 Vector3 with Catmull-Rom spline algorithm
     //http://www.iquilezles.org/www/articles/minispline/minispline.htm
-    public static Vector3 GetCatmullRomPosition(float t, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
+    Vector3 GetCatmullRomPosition(float t, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
     {
         //The coefficients of the cubic polynomial (except the 0.5f * which I added later for performance)
         Vector3 a = 2f * p1;

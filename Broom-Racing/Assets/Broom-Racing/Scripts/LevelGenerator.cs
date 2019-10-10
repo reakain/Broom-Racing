@@ -84,7 +84,7 @@ namespace BroomRacing
         void GenerateObstacles(Vector3 position)
         {
             // Currently just dumps them all at 0,0,0 lol
-            int numObstacles = Random.Range(10, 30);
+            int numObstacles = Random.Range(1, 5);
             for (int i = 0; i < numObstacles; i++)
             {
                 int numSprite = Random.Range(0, obstacleSprites.Length - 1);
