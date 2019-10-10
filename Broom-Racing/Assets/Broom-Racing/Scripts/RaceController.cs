@@ -19,6 +19,10 @@ namespace BroomRacing
         Transform targetWayPoint;
 
         public float raceSpeed = 4f;
+        public float raceStartTime = 0.0f;
+        public float raceTime = 0.0f;
+
+        public TMPro.TextMeshProUGUI raceTimeLabel;
 
         private void Awake()
         {
@@ -36,7 +40,8 @@ namespace BroomRacing
         {
             if(!raceOver)
             {
-                if (currentWayPoint < this.racePath.Length)
+                raceTime = Time.time - raceStartTime;
+                if (currentWayPoint < this.racePath.Length-1)
                 {
                     if (targetWayPoint == null)
                         targetWayPoint = racePath[currentWayPoint];
@@ -54,6 +59,14 @@ namespace BroomRacing
             if(Input.GetButtonDown(InputContainer.instance.endRaceButton))
             {
                 EndRace();
+            }
+        }
+
+        private void FixedUpdate()
+        {
+            if(raceTimeLabel != null)
+            {
+                raceTimeLabel.text = System.TimeSpan.FromSeconds(raceTime).ToString("g");
             }
         }
 
@@ -78,6 +91,8 @@ namespace BroomRacing
         {
             if(racePath != null && player != null)
             {
+                raceStartTime = Time.time;
+                raceTime = 0.0f;
                 this.gameObject.transform.position = racePath[0].position;
                 player.gameObject.SetActive(true);
                 player.SetStartPosition();

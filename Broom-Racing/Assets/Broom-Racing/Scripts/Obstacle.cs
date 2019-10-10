@@ -8,13 +8,13 @@ namespace BroomRacing
     public class Obstacle : MonoBehaviour
     {
         private PolygonCollider2D m_Collider2D;
-        private Rigidbody2D m_Rigidbody2D;
+        //private Rigidbody2D m_Rigidbody2D;
         private SpriteRenderer m_SpriteRenderer;
 
         private void Awake()
         {
             m_Collider2D = GetComponent<PolygonCollider2D>();
-            m_Rigidbody2D = GetComponent<Rigidbody2D>();
+            //m_Rigidbody2D = GetComponent<Rigidbody2D>();
             m_SpriteRenderer = GetComponent<SpriteRenderer>();
         }
 
