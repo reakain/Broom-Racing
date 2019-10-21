@@ -74,7 +74,7 @@ namespace BroomRacing
         {
             // rotate towards the target
             
-            var rotateUnClamp = Vector3.RotateTowards(transform.up, targetWayPoint.position - transform.position, raceSpeed/2 * Time.deltaTime, 0.0f);
+            var rotateUnClamp = Vector3.RotateTowards(transform.up, targetWayPoint.position - transform.position, raceSpeed/3f * Time.deltaTime, 0.0f);
             transform.up = new Vector3(rotateUnClamp.x,rotateUnClamp.y);
 
             // move towards the target

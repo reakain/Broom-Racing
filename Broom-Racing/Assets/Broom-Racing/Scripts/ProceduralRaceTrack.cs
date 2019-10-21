@@ -38,7 +38,7 @@ public static class ProceduralComplexLoop
         Vector2[] rSet = new Vector2[dataSet.Length * 2];
         Vector2 disp = new Vector2();
         float difficulty = 1f; //the closer the value is to 0, the harder the track should be. Grows exponentially.  
-        float maxDisp = 20f; // Again, this may change to fit your units.  
+        float maxDisp = 10f; // Again, this may change to fit your units.  
         for (int i = 0; i < dataSet.Length; ++i)
         {
             float dispLen = (float)Mathf.Pow(Random.Range(0.0f, 1.0f), difficulty) * maxDisp;
@@ -66,7 +66,7 @@ public static class ProceduralComplexLoop
             pushApart(dataSet);
         }
 
-        return CatmullRomSpline.GetCatmullRomSpline(dataSet);
+        return dataSet;// CatmullRomSpline.GetCatmullRomSpline(dataSet);
         /*
         for (float i = 0; i <= 1.0f;)
         {

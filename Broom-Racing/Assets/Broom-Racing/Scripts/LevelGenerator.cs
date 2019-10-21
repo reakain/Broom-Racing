@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using PathCreation;
+using Pathfinding;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -33,8 +35,21 @@ namespace BroomRacing
             //backgroundSprites = Resources.LoadAll<Sprite>(backgroundSpriteTexture.name);
 
             GenerateLevelLayout();
-            RaceController.instance.SetRacePath(waypointList);
+            //RaceController.instance.SetRacePath(waypointList);
 
+            if (waypointList.Length > 0)
+            {
+                // Create a new bezier path from the waypoints.
+                BezierPath bezierPath = new BezierPath(waypointList, true, PathSpace.xy);
+                GetComponent<PathCreator>().bezierPath = bezierPath;
+            }
+            GetComponent<CourseMeshCreator>().GenerateCollider();
+            
+        }
+
+        private void Start()
+        {
+            GetComponent<Grid2D>().InstantiateGrid();
         }
 
         /*
@@ -148,16 +163,16 @@ namespace BroomRacing
 
         void GenerateLevelPath()
         {
-            int waypointNum = Random.Range(4, 20);
+            int waypointNum = Random.Range(4, 10);
 
-            trackPath = ProceduralComplexLoop.GeneratePoints(background.bounds.size.x * randomScale, background.bounds.size.y * randomScale, waypointNum);
+            trackPath = ProceduralComplexLoop.GeneratePoints(50,25,waypointNum);// background.bounds.extents.x * randomScale*0.5f, background.bounds.extents.y * randomScale*0.5f, waypointNum);
 
             waypointList = new Transform[trackPath.Length];
             for(int i = 0; i < trackPath.Length; i ++)
             {
                 waypointList[i] = Instantiate(waypointPrefab);
                 waypointList[i].position = new Vector3(trackPath[i].x, trackPath[i].y);
-                GenerateObstacles(waypointList[i].position);
+                //GenerateObstacles(waypointList[i].position);
             }
         }
 
