@@ -15,14 +15,16 @@ namespace BroomRacing
     {
         public PathCreator pathCreator;
         public EndOfPathInstruction endOfPathInstruction;
-        public float speed = 5;
-        public float courseWidth = 3f;
+        float speed = 5;
+        float courseWidth = 3f;
         public MarkerSide pathSide = MarkerSide.Left;
         float distanceTravelled;
 
         void Start()
         {
             speed = RaceController.instance.raceSpeed;
+            courseWidth = RaceController.instance.courseWidth;
+            pathCreator = FindObjectOfType<PathCreator>();
             if (pathCreator != null)
             {
                 // Subscribed to the pathUpdated event so that we're notified if the path changes during the game

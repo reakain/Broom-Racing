@@ -118,8 +118,16 @@ MonoBehaviour:
   m_Obstacles:
     serializedVersion: 2
     m_Bits: 512
-  m_Speed: 5
+  speed: 20
   analogDeadZone: 0.5
+  isPlayer: 0
+  _stun: 0
+  _speedBoosted: 0
+  boostSpeedBonus: 5
+  boostActiveTime: 10
+  stunTime: 1
+  pathCreator: {fileID: 0}
+  endOfPathInstruction: 0
 --- !u!50 &5595452836992125964
 Rigidbody2D:
   serializedVersion: 4
@@ -135,9 +143,9 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 4
+  m_Constraints: 0
