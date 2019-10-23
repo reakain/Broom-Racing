@@ -33,6 +33,9 @@ namespace BroomRacing
         //public float speed = 5;
         float distanceTravelled;
         float xPos = 0f;
+        float spotDistance = 2f;
+        float spotRadius = 1f;
+        float dodgeStride = 1f;
 
         private float _speed;
         private float _turning;
@@ -81,6 +84,14 @@ namespace BroomRacing
                     .Sequence("Move Forward")
                         .Do("Get or move next waypoint", () =>
                         {
+                            float xMove = 0f;
+                            var hit = Physics2D.CircleCast(rigid2d.position, spotRadius, transform.up, spotDistance, m_Obstacles);
+                            if(hit)
+                            {
+                                dodgeStride = 3f < dodgeStride + xPos ? -dodgeStride : dodgeStride;
+                                xMove = dodgeStride;
+                            }
+                            MoveNext(xMove);
                             return TaskStatus.Success;
                         })
                     .End()
@@ -107,39 +118,27 @@ namespace BroomRacing
             
             if (isPlayer)
             {
-                MoveNext();
+                if(Input.GetButtonDown(InputContainer.instance.boostButton))
+                {
+                    StopCoroutine(SpeedBoostLoop());
+                    StartCoroutine(SpeedBoostLoop());
+                }
+                MoveNext(0f);
             }
             _tree.Tick();
-            //Vector2 targetPos;
-            //if(isPlayer)
-            //{
-            //    targetPos = GetPlayerMovement();
-            //}
-            //else
-            //{
-            //    // AI goes here
-            //    targetPos = Vector2.zero;
-            //}
-            //Move(targetPos);
-            //LockPosition();
         }
 
-        public void MoveNext()
+        public void MoveNext(float xtemp)
         {
             if (pathCreator != null)
             {
-                //distanceTravelled += speed * Time.deltaTime;
-                //Vector3 newPos = pathCreator.path.GetPointAtDistance(distanceTravelled, endOfPathInstruction);
-                //Vector2 localRight = Vector2.Perpendicular(newPos.normalized);
-                //Vector2 localForward = newPos.normalized;
+                if(isPlayer)
+                {
+                    xtemp = Input.GetAxis(InputContainer.instance.movementAxis);
+                }
 
                 if(isPlayer && !_stun)
                 {
-                    float ytemp = Input.GetAxis(InputContainer.instance.raceAxis);
-                    float xtemp = Input.GetAxis(InputContainer.instance.movementAxis);
-                    Vector2 input = new Vector2(xtemp, ytemp).normalized;
-                    //ytemp = ytemp > 0f ? ytemp : 0f;
-                        
                         xPos += (xtemp * speed*Time.deltaTime);
                         xPos = xPos > 3f ? 3f : xPos;
                         xPos = xPos < -3f ? -3f : xPos;
@@ -148,82 +147,24 @@ namespace BroomRacing
 
                         Vector3 currentPos = pathCreator.path.GetPointAtDistance(distanceTravelled, endOfPathInstruction);
                         Vector2 localForward = pathCreator.path.GetDirectionAtDistance(distanceTravelled, endOfPathInstruction).normalized;
-                        //Vector2 localRight = pathCreator.path.Get
 
                         Vector2 localRight = Vector2.Perpendicular(localForward);
-                    //Vector2 localForward = currentPos.normalized;
-                    //Vector2 pos2D = currentPos;
-                    //Vector2 pos2D = input.y * speed * Time.deltaTime * localForward;// + ;
 
-                    //m_Velocity = pos2D.normalized * speed;// * Time.deltaTime;
-                    //pos2D += 
-                    //Vector2 pos2D = Vector3.Dot(rigid2d.position, newPos.normalized)*localForward;
-                    //pos2D += + speed * Time.deltaTime * ytemp * localForward + xtemp * localRight * speed * Time.deltaTime;
-                    //rigid2d.MovePosition()
+                    rigid2d.MoveRotation(Quaternion.FromToRotation(Vector3.up, localForward));
 
-
-                    //newPos = new Vector3(newPos.x + (xtemp * localRight * speed * Time.deltaTime).x, newPos.y + (xtemp * localRight * speed * Time.deltaTime).y);
-
-                    //rigid2d.SetRotation(rigid2d.position.AngleBetweenDeg(localForward));
-                    rigid2d.MoveRotation(Quaternion.FromToRotation(Vector3.up, localForward));// Vector2.Angle(Vector3.up, localForward));
-                    //float angle;
-                    //Vector3 axis;
-                    //Quaternion.FromToRotation(Vector3.up, localForward).ToAngleAxis(out angle, out axis);
-                    //rigid2d.MoveRotation(angle);
-
-                        //rigid2d.velocity = m_Velocity;
-                        //rigid2d.angularVelocity = rigid2d.position.AngleBetweenDeg(pos2D);///Time.deltaTime;
                         Vector2 postemp = currentPos;
                         Vector2 pos2D = currentPos;
 
                         float horizontalDist = Vector2.Dot(localRight, postemp - rigid2d.position);
-                        //if (horizontalDist > 3f)
-                        //{
-                        //    pos2D += - (horizontalDist - 3f) * localRight;
-                        //}
-                        //else if(horizontalDist < -3f)
-                        //{
-                        //    pos2D += (-horizontalDist - 3f) * localRight;
-                        //}
-                        //else if(! Mathf.Approximately(xtemp, 0f))
-                        //{
-                        //    pos2D += Mathf.Sign(xtemp) * speed * Time.deltaTime * localRight;
-                        //}
-
                         pos2D += -xPos * localRight;
 
-                        rigid2d.MovePosition(pos2D);// + speed * Time.deltaTime * localForward);
+                        rigid2d.MovePosition(pos2D);
 
-                        
-
-                        //float ytemp = Input.GetAxis(InputContainer.instance.raceAxis);
-
-                        //Vector2 input = new Vector2(xtemp, ytemp).normalized * localForward;
-
-                        //rigid2d.MovePosition(rigid2d.position + input.normalized*speed*Time.deltaTime);
-                    
                 }
 
             }
         }
 
-        public void Move(Vector2 movement)
-        {
-            // Set new velocity
-            Vector3 targetVelocity = movement * m_Speed;
-            //transform.position = RaceController.instance.transform.position;
-            // And then smoothing it out and applying it 
-            rigid2d.velocity = Vector3.SmoothDamp(rigid2d.velocity, targetVelocity, ref m_Velocity, m_MovementSmoothing);
-        }
-
-        public void LockPosition()
-        {
-            transform.up = RaceController.instance.transform.up;
-            if (isPlayer)
-            {
-                transform.localPosition = new Vector3(transform.localPosition.x, 0, 0);
-            }
-        }
 
         public void SetStartPosition()
         {
@@ -232,9 +173,8 @@ namespace BroomRacing
             //transform.localPosition = new Vector3(transform.localPosition.x, 0, 0);
 
             rigid2d.position = pathCreator.path.GetPoint(0);
-            Vector2 localRight = Vector2.Perpendicular(rigid2d.position.normalized);
-            Vector2 localForward = rigid2d.position.normalized;
-            rigid2d.rotation = Mathf.Atan2(Vector2.Perpendicular(rigid2d.position).magnitude, rigid2d.position.magnitude) * Mathf.Rad2Deg;
+            Vector2 localForward = pathCreator.path.GetDirection(0,endOfPathInstruction);
+            rigid2d.SetRotation(Quaternion.FromToRotation(Vector3.up, localForward));//Mathf.Atan2(Vector2.Perpendicular(rigid2d.position).magnitude, rigid2d.position.magnitude) * Mathf.Rad2Deg;
         }
 
         public Vector2 GetAIPoint()
