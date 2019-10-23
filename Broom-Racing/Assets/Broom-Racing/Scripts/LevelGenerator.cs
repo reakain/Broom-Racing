@@ -27,29 +27,37 @@ namespace BroomRacing
         public Transform[] waypointList;
         public Vector2[] trackPath;
 
+        PathCreator pathCreator;
+        CourseMeshCreator meshCreator;
+        Grid2D grid2d;
+
         private void Awake()
         {
             obstacleSprites = Resources.LoadAll<Sprite>(obstacleSpriteTexture.name);
             obstacles = new List<Obstacle>();
 
+            pathCreator = GetComponent<PathCreator>();
+            meshCreator = GetComponent<CourseMeshCreator>();
+            grid2d = GetComponent<Grid2D>();
+
             //backgroundSprites = Resources.LoadAll<Sprite>(backgroundSpriteTexture.name);
 
-            GenerateLevelLayout();
-            //RaceController.instance.SetRacePath(waypointList);
+            //GenerateLevelLayout();
+            ////RaceController.instance.SetRacePath(waypointList);
 
-            if (waypointList.Length > 0)
-            {
-                // Create a new bezier path from the waypoints.
-                BezierPath bezierPath = new BezierPath(waypointList, true, PathSpace.xy);
-                GetComponent<PathCreator>().bezierPath = bezierPath;
-            }
-            GetComponent<CourseMeshCreator>().GenerateCollider();
+            //if (waypointList.Length > 0)
+            //{
+            //    // Create a new bezier path from the waypoints.
+            //    BezierPath bezierPath = new BezierPath(waypointList, true, PathSpace.xy);
+            //    GetComponent<PathCreator>().bezierPath = bezierPath;
+            //}
+            //GetComponent<CourseMeshCreator>().GenerateCollider();
             
         }
 
         private void Start()
         {
-            GetComponent<Grid2D>().InstantiateGrid();
+            //GetComponent<Grid2D>().InstantiateGrid();
         }
 
         /*
@@ -82,10 +90,91 @@ namespace BroomRacing
             }
         }
 
-        void GenerateLevelLayout()
+        public void GenerateLevelLayout()
         {
             GenerateLevelPath();
+
+            if (waypointList.Length > 0)
+            {
+                // Create a new bezier path from the waypoints.
+                BezierPath bezierPath = new BezierPath(waypointList, true, PathSpace.xy);
+                pathCreator.bezierPath = bezierPath;
+                Debug.Log("Number of path points: " + pathCreator.path.NumPoints.ToString());
+                //while(PathHasCrossing())
+                //{
+                //    Debug.Log("Try make new path!");
+                //    GenerateLevelPath();
+                //    if (waypointList.Length > 0)
+                //    {
+                //        // Create a new bezier path from the waypoints.
+                //        bezierPath = new BezierPath(waypointList, true, PathSpace.xy);
+                //        pathCreator.bezierPath = bezierPath;
+                //    }
+                //}
+                //meshCreator.GenerateCollider();
+
+                //grid2d.InstantiateGrid();
+            }
+
+            
             //GenerateObstacles();
+        }
+
+        bool PathHasCrossing()
+        {
+            for (int i = 0; i < pathCreator.path.NumPoints; i ++)
+            {
+                Vector2 pointA = pathCreator.path.GetPoint(i);
+                int i2 = (i + 1) >= pathCreator.path.NumPoints ? 0 : i + 1;
+                Vector2 pointB = pathCreator.path.GetPoint(i2);
+                for (int j = 0; j < pathCreator.path.NumPoints; j++)
+                {
+                    Vector2 point1 = pathCreator.path.GetPoint(j);
+                    int j2 = (j + 1) >= pathCreator.path.NumPoints ? 0 : j + 1;
+                    Vector2 point2 = pathCreator.path.GetPoint(j2);
+
+                    if (j != i  && j != i2 && j2 != i && j2 != i2)
+                    {
+                        if(Intersects(pointA, pointB, point1, point2))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        public bool Intersects(Vector2 line1V1, Vector2 line1V2, Vector2 line2V1, Vector2 line2V2)
+        {
+            //Line1
+            float A1 = line1V2.y - line1V1.y;
+            float B1 = line1V1.x - line1V2.x;
+            float C1 = A1 * line1V1.x + B1 * line1V1.y;
+
+            //Line2
+            float A2 = line2V2.y - line2V1.y;
+            float B2 = line2V1.x - line2V2.x;
+            float C2 = A2 * line2V1.x + B2 * line2V1.y;
+
+            float delta = A1 * B2 - A2 * B1;
+            Vector2 intersectPoint = new Vector2(0, 0);
+
+            if (delta == 0)
+                return false;
+
+            float x = (B2 * C1 - B1 * C2) / delta;
+            float y = (A1 * C2 - A2 * C1) / delta;
+            intersectPoint = new Vector2(x, y);
+
+            float lineDist = Mathf.Abs(Vector2.Distance(line1V1, line1V2));
+
+            if (Mathf.Abs(Vector2.Distance(intersectPoint, line1V1)) < lineDist && Mathf.Abs(Vector2.Distance(intersectPoint, line1V2)) < lineDist)
+            {
+                return true;
+            }
+            return false;
+
         }
 
         // Load a background image for your level
@@ -165,7 +254,7 @@ namespace BroomRacing
         {
             int waypointNum = Random.Range(4, 10);
 
-            trackPath = ProceduralComplexLoop.GeneratePoints(50,25,waypointNum);// background.bounds.extents.x * randomScale*0.5f, background.bounds.extents.y * randomScale*0.5f, waypointNum);
+            trackPath = ProceduralComplexLoop.GeneratePoints(50,50,waypointNum, 10f, 1f, 10f);// background.bounds.extents.x * randomScale*0.5f, background.bounds.extents.y * randomScale*0.5f, waypointNum);
 
             waypointList = new Transform[trackPath.Length];
             for(int i = 0; i < trackPath.Length; i ++)

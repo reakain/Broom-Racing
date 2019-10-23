@@ -6,9 +6,10 @@ using UnityEngine;
 public static class ProceduralComplexLoop
 {
     // Source: https://www.gamasutra.com/blogs/GustavoMaciel/20131229/207833/Generating_Procedural_Racetracks.php
-    public static Vector2[] GeneratePoints(float xBound, float yBound, int pointCount)
+    public static Vector2[] GeneratePoints(float xBound, float yBound, int pointCount, float maxDisp = 20f, float difficulty = 1f, float dst = 15f)
     { 
 
+    // closer difficulty is to 0, the harder the track is, grows exponentially
     //int pointCount = Random.Range(10, 20); //we'll have a total of 10 to 20 points  
     Vector2[] points = new Vector2[pointCount * 2];
         List<Vertex> convexhullvert = new List<Vertex>();
@@ -37,8 +38,6 @@ public static class ProceduralComplexLoop
 
         Vector2[] rSet = new Vector2[dataSet.Length * 2];
         Vector2 disp = new Vector2();
-        float difficulty = 1f; //the closer the value is to 0, the harder the track should be. Grows exponentially.  
-        float maxDisp = 10f; // Again, this may change to fit your units.  
         for (int i = 0; i < dataSet.Length; ++i)
         {
             float dispLen = (float)Mathf.Pow(Random.Range(0.0f, 1.0f), difficulty) * maxDisp;
@@ -57,13 +56,13 @@ public static class ProceduralComplexLoop
         //push apart again, so we can stabilize the points distances.  
         for (int i = 0; i < pushIterations; ++i)
         {
-            pushApart(dataSet);
+            pushApart(dataSet, dst);
         }
 
         for (int i = 0; i < 10; ++i)
         {
             fixAngles(dataSet);
-            pushApart(dataSet);
+            pushApart(dataSet,dst);
         }
 
         return dataSet;// CatmullRomSpline.GetCatmullRomSpline(dataSet);
@@ -89,9 +88,8 @@ public static class ProceduralComplexLoop
         */
     }
 
-    public static void pushApart(Vector2[] dataSet)
+    public static void pushApart(Vector2[] dataSet, float dst = 15f)
     {
-        float dst = 15; //I found that 15 is a good value, though maybe, depending on your scale you'll need other value.  
         float dst2 = dst * dst;
         for (int i = 0; i < dataSet.Length; ++i)
         {

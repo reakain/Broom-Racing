@@ -29,6 +29,10 @@ namespace BroomRacing
         [SerializeField] private int stunTime = 1;
 
         public PathCreator pathCreator;
+        public EndOfPathInstruction endOfPathInstruction;
+        //public float speed = 5;
+        float distanceTravelled;
+        float xPos = 0f;
 
         private float _speed;
         private float _turning;
@@ -55,10 +59,12 @@ namespace BroomRacing
         {
             rigid2d = GetComponent<Rigidbody2D>();
             m_HitBox = GetComponent<Collider2D>();
+            pathCreator = FindObjectOfType<PathCreator>();
             rigid2d.freezeRotation = false;
 
             _tree = new BehaviorTreeBuilder(gameObject)
             .Sequence()
+                .Condition("Is Racing", () => !RaceController.instance.raceOver)
                 .Condition("Not Player", () => !isPlayer)
                 .Condition("Stunned", () => _stun)
                 .Selector()
@@ -90,25 +96,109 @@ namespace BroomRacing
         // Start is called before the first frame update
         void Start()
         {
-            StartCoroutine(UpdatePath());
+            speed = RaceController.instance.raceSpeed;
+            m_Speed = RaceController.instance.raceSpeed;
+            //StartCoroutine(UpdatePath());
         }
 
         // Update is called once per frame
         void Update()
         {
+            
+            if (isPlayer)
+            {
+                MoveNext();
+            }
             _tree.Tick();
-            Vector2 targetPos;
-            if(isPlayer)
+            //Vector2 targetPos;
+            //if(isPlayer)
+            //{
+            //    targetPos = GetPlayerMovement();
+            //}
+            //else
+            //{
+            //    // AI goes here
+            //    targetPos = Vector2.zero;
+            //}
+            //Move(targetPos);
+            //LockPosition();
+        }
+
+        public void MoveNext()
+        {
+            if (pathCreator != null)
             {
-                targetPos = GetPlayerMovement();
+                //distanceTravelled += speed * Time.deltaTime;
+                //Vector3 newPos = pathCreator.path.GetPointAtDistance(distanceTravelled, endOfPathInstruction);
+                //Vector2 localRight = Vector2.Perpendicular(newPos.normalized);
+                //Vector2 localForward = newPos.normalized;
+
+                if(isPlayer && !_stun)
+                {
+                    float ytemp = Input.GetAxis(InputContainer.instance.raceAxis);
+                    float xtemp = Input.GetAxis(InputContainer.instance.movementAxis);
+                    Vector2 input = new Vector2(xtemp, ytemp).normalized;
+                    //ytemp = ytemp > 0f ? ytemp : 0f;
+                    if (ytemp > 0f )
+                    {
+                        
+                        xPos += (xtemp * speed*Time.deltaTime);
+                        xPos = xPos > 3f ? 3f : xPos;
+                        xPos = xPos < -3f ? -3f : xPos;
+
+                        distanceTravelled += speed * Time.deltaTime;
+
+                        Vector3 currentPos = pathCreator.path.GetPointAtDistance(distanceTravelled, endOfPathInstruction);
+
+                        Vector2 localRight = Vector2.Perpendicular(currentPos.normalized);
+                        Vector2 localForward = currentPos.normalized;
+                        //Vector2 pos2D = currentPos;
+                        //Vector2 pos2D = input.y * speed * Time.deltaTime * localForward;// + ;
+
+                        //m_Velocity = pos2D.normalized * speed;// * Time.deltaTime;
+                                                              //pos2D += 
+                                                              //Vector2 pos2D = Vector3.Dot(rigid2d.position, newPos.normalized)*localForward;
+                                                              //pos2D += + speed * Time.deltaTime * ytemp * localForward + xtemp * localRight * speed * Time.deltaTime;
+                                                              //rigid2d.MovePosition()
+
+
+                        //newPos = new Vector3(newPos.x + (xtemp * localRight * speed * Time.deltaTime).x, newPos.y + (xtemp * localRight * speed * Time.deltaTime).y);
+
+                        rigid2d.SetRotation(rigid2d.position.AngleBetweenDeg(localForward));
+                        //rigid2d.velocity = m_Velocity;
+                        //rigid2d.angularVelocity = rigid2d.position.AngleBetweenDeg(pos2D);///Time.deltaTime;
+                        Vector2 postemp = currentPos;
+                        Vector2 pos2D = currentPos;
+
+                        float horizontalDist = Vector2.Dot(localRight, postemp - rigid2d.position);
+                        //if (horizontalDist > 3f)
+                        //{
+                        //    pos2D += - (horizontalDist - 3f) * localRight;
+                        //}
+                        //else if(horizontalDist < -3f)
+                        //{
+                        //    pos2D += (-horizontalDist - 3f) * localRight;
+                        //}
+                        //else if(! Mathf.Approximately(xtemp, 0f))
+                        //{
+                        //    pos2D += Mathf.Sign(xtemp) * speed * Time.deltaTime * localRight;
+                        //}
+
+                        pos2D += xPos * localRight;
+
+                        rigid2d.MovePosition(pos2D);// + speed * Time.deltaTime * localForward);
+
+                        
+
+                        //float ytemp = Input.GetAxis(InputContainer.instance.raceAxis);
+
+                        //Vector2 input = new Vector2(xtemp, ytemp).normalized * localForward;
+
+                        //rigid2d.MovePosition(rigid2d.position + input.normalized*speed*Time.deltaTime);
+                    }
+                }
+
             }
-            else
-            {
-                // AI goes here
-                targetPos = Vector2.zero;
-            }
-            Move(targetPos);
-            LockPosition();
         }
 
         public void Move(Vector2 movement)
@@ -131,9 +221,14 @@ namespace BroomRacing
 
         public void SetStartPosition()
         {
-            transform.up = RaceController.instance.transform.up;
+            //transform.up = RaceController.instance.transform.up;
 
-            transform.localPosition = new Vector3(transform.localPosition.x, 0, 0);
+            //transform.localPosition = new Vector3(transform.localPosition.x, 0, 0);
+
+            rigid2d.position = pathCreator.path.GetPoint(0);
+            Vector2 localRight = Vector2.Perpendicular(rigid2d.position.normalized);
+            Vector2 localForward = rigid2d.position.normalized;
+            rigid2d.rotation = Mathf.Atan2(Vector2.Perpendicular(rigid2d.position).magnitude, rigid2d.position.magnitude) * Mathf.Rad2Deg;
         }
 
         public Vector2 GetAIPoint()

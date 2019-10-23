@@ -13,6 +13,8 @@ namespace BroomRacing
         public Racer player;
         public Racer[] opponents;
 
+        public LevelGenerator levelGenerator;
+
         public Transform[] racePath;
 
         public int currentWayPoint = 0;
@@ -27,12 +29,13 @@ namespace BroomRacing
         private void Awake()
         {
             instance = this;
+            levelGenerator = FindObjectOfType<LevelGenerator>();
         }
 
         // Start is called before the first frame update
         void Start()
         {
-
+            raceOver = true;
         }
 
         // Update is called once per frame
@@ -41,16 +44,16 @@ namespace BroomRacing
             if(!raceOver)
             {
                 raceTime = Time.time - raceStartTime;
-                if (currentWayPoint < this.racePath.Length-1)
-                {
-                    if (targetWayPoint == null)
-                        targetWayPoint = racePath[currentWayPoint];
-                    MoveAlongTrack();
-                }
-                else
-                {
-                    EndRace();
-                }
+                //if (currentWayPoint < this.racePath.Length-1)
+                //{
+                //    if (targetWayPoint == null)
+                //        targetWayPoint = racePath[currentWayPoint];
+                //    MoveAlongTrack();
+                //}
+                //else
+                //{
+                //    EndRace();
+                //}
             }
             if(Input.GetButtonDown(InputContainer.instance.startRaceButton))
             {
@@ -89,11 +92,13 @@ namespace BroomRacing
 
         public void StartRace()
         {
-            if(racePath != null && player != null)
+            if(player != null)//racePath != null && player != null)
             {
                 raceStartTime = Time.time;
                 raceTime = 0.0f;
-                this.gameObject.transform.position = racePath[0].position;
+                levelGenerator.GenerateLevelLayout();
+
+                //this.gameObject.transform.position = racePath[0].position;
                 player.gameObject.SetActive(true);
                 player.SetStartPosition();
                 foreach(var opponent in opponents)
