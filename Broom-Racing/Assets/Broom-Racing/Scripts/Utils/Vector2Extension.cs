@@ -24,7 +24,7 @@ public static class Vector2Extension
 
     public static float AngleBetween(this Vector2 v, Vector2 otherV)
     {
-        float radians = Mathf.Atan2(otherV.y - v.y, otherV.x-v.x);
+        float radians = Mathf.Atan2(v.y - otherV.y, v.x - otherV.x);
 
         return radians;
     }
